@@ -1,0 +1,1097 @@
+openapi: 3.1.0
+info:
+  title: BapiDapi API
+  version: 1.0.0
+  summary: Beispielhafte OpenAPI-Beschreibung für ein Parking-Backend
+  description: |
+    Diese Spezifikation beschreibt ein typisches Backend für ein Parking-Portal.
+    Sie ist fachlich an gängigen Funktionen wie Parkplatzsuche, Verfügbarkeit, Reservierungen,
+    Fahrer- und Fahrzeugverwaltung ausgerichtet.
+
+    Wichtiger Hinweis:
+    Diese API-Beschreibung ist keine offizielle Bosch-API-Dokumentation, sondern ein technisches Modell.
+
+servers:
+  - url: https://api.bapidapi.parking.local/api/v1
+    description: Production
+  - url: https://staging.api.bapidapi.parking.local/api/v1
+    description: Staging
+
+tags:
+  - name: Auth
+  - name: Parking Lots
+  - name: Reservations
+  - name: Drivers
+  - name: Vehicles
+  - name: Health
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, timestamp]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /auth/token:
+    post:
+      tags: [Auth]
+      summary: Create access token
+      operationId: createToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clientId, clientSecret]
+              properties:
+                clientId:
+                  type: string
+                  example: partner-app
+                clientSecret:
+                  type: string
+                  format: password
+                  example: super-secret
+      responses:
+        '200':
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /parking-lots:
+    get:
+      tags: [Parking Lots]
+      summary: Search parking lots
+      operationId: listParkingLots
+      parameters:
+        - name: countryCode
+          in: query
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+          example: DE
+        - name: city
+          in: query
+          schema:
+            type: string
+          example: Kassel
+        - name: latitude
+          in: query
+          schema:
+            type: number
+            format: double
+          example: 51.3127
+        - name: longitude
+          in: query
+          schema:
+            type: number
+            format: double
+          example: 9.4797
+        - name: radiusKm
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+          example: 100
+        - name: checkIn
+          in: query
+          schema:
+            type: string
+            format: date-time
+          example: 2026-04-10T20:00:00Z
+        - name: checkOut
+          in: query
+          schema:
+            type: string
+            format: date-time
+          example: 2026-04-11T06:00:00Z
+        - name: vehicleType
+          in: query
+          schema:
+            $ref: '#/components/schemas/VehicleType'
+        - name: minSecurityLevel
+          in: query
+          schema:
+            $ref: '#/components/schemas/SecurityLevel'
+        - name: amenities
+          in: query
+          description: Comma-separated amenity codes
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AmenityCode'
+            style: form
+            explode: false
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Parking lots found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedParkingLotList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /parking-lots/{parkingLotId}:
+    get:
+      tags: [Parking Lots]
+      summary: Get parking lot details
+      operationId: getParkingLot
+      parameters:
+        - $ref: '#/components/parameters/ParkingLotId'
+      responses:
+        '200':
+          description: Parking lot details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingLot'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /parking-lots/{parkingLotId}/availability:
+    get:
+      tags: [Parking Lots]
+      summary: Get availability and pricing for a parking lot
+      operationId: getParkingLotAvailability
+      parameters:
+        - $ref: '#/components/parameters/ParkingLotId'
+        - name: checkIn
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: checkOut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: vehicleType
+          in: query
+          schema:
+            $ref: '#/components/schemas/VehicleType'
+      responses:
+        '200':
+          description: Availability data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /reservations:
+    get:
+      tags: [Reservations]
+      summary: List reservations
+      operationId: listReservations
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReservationStatus'
+        - name: driverId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: vehicleId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: parkingLotId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Reservation list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReservationList'
+
+    post:
+      tags: [Reservations]
+      summary: Create reservation
+      operationId: createReservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        '201':
+          description: Reservation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Requested slot is no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /reservations/{reservationId}:
+    get:
+      tags: [Reservations]
+      summary: Get reservation
+      operationId: getReservation
+      parameters:
+        - $ref: '#/components/parameters/ReservationId'
+      responses:
+        '200':
+          description: Reservation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Reservations]
+      summary: Cancel reservation
+      operationId: cancelReservation
+      parameters:
+        - $ref: '#/components/parameters/ReservationId'
+      responses:
+        '204':
+          description: Reservation cancelled
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Reservation cannot be cancelled anymore
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /drivers:
+    get:
+      tags: [Drivers]
+      summary: List drivers
+      operationId: listDrivers
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search by name, email, phone or employee number
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Driver list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDriverList'
+
+    post:
+      tags: [Drivers]
+      summary: Create driver
+      operationId: createDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDriverRequest'
+      responses:
+        '201':
+          description: Driver created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /drivers/{driverId}:
+    get:
+      tags: [Drivers]
+      summary: Get driver
+      operationId: getDriver
+      parameters:
+        - $ref: '#/components/parameters/DriverId'
+      responses:
+        '200':
+          description: Driver details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Drivers]
+      summary: Update driver
+      operationId: updateDriver
+      parameters:
+        - $ref: '#/components/parameters/DriverId'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/UpdateDriverRequest'
+      responses:
+        '200':
+          description: Driver updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles:
+    get:
+      tags: [Vehicles]
+      summary: List vehicles
+      operationId: listVehicles
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search by plate, fleet number or trailer plate
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Vehicle list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVehicleList'
+
+    post:
+      tags: [Vehicles]
+      summary: Create vehicle
+      operationId: createVehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVehicleRequest'
+      responses:
+        '201':
+          description: Vehicle created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /vehicles/{vehicleId}:
+    get:
+      tags: [Vehicles]
+      summary: Get vehicle
+      operationId: getVehicle
+      parameters:
+        - $ref: '#/components/parameters/VehicleId'
+      responses:
+        '200':
+          description: Vehicle details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Vehicles]
+      summary: Update vehicle
+      operationId: updateVehicle
+      parameters:
+        - $ref: '#/components/parameters/VehicleId'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/UpdateVehicleRequest'
+      responses:
+        '200':
+          description: Vehicle updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ParkingLotId:
+      name: parkingLotId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ReservationId:
+      name: reservationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DriverId:
+      name: driverId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    VehicleId:
+      name: vehicleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    TokenResponse:
+      type: object
+      required: [accessToken, tokenType, expiresIn]
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOi...
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          example: 3600
+
+    SecurityLevel:
+      type: string
+      enum: [basic, guarded, fenced, gated, cctv, secure]
+      example: secure
+
+    AmenityCode:
+      type: string
+      enum:
+        - shower
+        - toilet
+        - wifi
+        - restaurant
+        - fuel
+        - electric_charging
+        - adr_supported
+        - cctv
+        - access_control
+        - perimeter_fence
+        - guarded
+      example: shower
+
+    VehicleType:
+      type: string
+      enum: [truck, truck_trailer, van, adr_truck, refrigerated_truck]
+      example: truck_trailer
+
+    ReservationStatus:
+      type: string
+      enum: [pending, confirmed, checked_in, checked_out, cancelled, expired]
+      example: confirmed
+
+    Money:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 25.50
+        currency:
+          type: string
+          example: EUR
+
+    Coordinates:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 51.3127
+        longitude:
+          type: number
+          format: double
+          example: 9.4797
+
+    Address:
+      type: object
+      required: [street, postalCode, city, countryCode]
+      properties:
+        street:
+          type: string
+          example: Musterstraße 12
+        postalCode:
+          type: string
+          example: 34117
+        city:
+          type: string
+          example: Kassel
+        state:
+          type: string
+          example: Hessen
+        countryCode:
+          type: string
+          example: DE
+
+    OpeningHours:
+      type: object
+      properties:
+        is24x7:
+          type: boolean
+          example: true
+        timezone:
+          type: string
+          example: Europe/Berlin
+
+    ParkingLotCapacity:
+      type: object
+      required: [totalSpaces, availableSpaces]
+      properties:
+        totalSpaces:
+          type: integer
+          example: 120
+        availableSpaces:
+          type: integer
+          example: 18
+        oversizedSpaces:
+          type: integer
+          example: 10
+        adrSpaces:
+          type: integer
+          example: 4
+
+    PriceInfo:
+      type: object
+      required: [basePrice]
+      properties:
+        basePrice:
+          $ref: '#/components/schemas/Money'
+        taxesIncluded:
+          type: boolean
+          example: true
+        cancellationPolicy:
+          type: string
+          example: Free cancellation until 2 hours before check-in
+        priceUnit:
+          type: string
+          enum: [per_stay, per_hour, per_night]
+          example: per_night
+
+    ParkingLot:
+      type: object
+      required:
+        - id
+        - name
+        - address
+        - coordinates
+        - securityLevel
+        - amenities
+        - capacity
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 7f2b92d7-5736-4d8d-bf80-ec7e4a2e7d18
+        code:
+          type: string
+          example: DE-KAS-001
+        name:
+          type: string
+          example: Secure Parking Kassel Süd
+        description:
+          type: string
+          example: Guarded truck parking area with CCTV and access control.
+        address:
+          $ref: '#/components/schemas/Address'
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        securityLevel:
+          $ref: '#/components/schemas/SecurityLevel'
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/AmenityCode'
+        openingHours:
+          $ref: '#/components/schemas/OpeningHours'
+        capacity:
+          $ref: '#/components/schemas/ParkingLotCapacity'
+        operatorName:
+          type: string
+          example: Example Parking Operations GmbH
+        contactPhone:
+          type: string
+          example: +49-555-123456
+        checkInInstructions:
+          type: string
+          example: Use gate terminal and reservation code on arrival.
+        pricing:
+          $ref: '#/components/schemas/PriceInfo'
+
+    AvailabilityResponse:
+      type: object
+      required:
+        - parkingLotId
+        - checkIn
+        - checkOut
+        - available
+        - remainingSpaces
+      properties:
+        parkingLotId:
+          type: string
+          format: uuid
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+        available:
+          type: boolean
+          example: true
+        remainingSpaces:
+          type: integer
+          example: 12
+        pricing:
+          $ref: '#/components/schemas/PriceInfo'
+
+    Driver:
+      type: object
+      required: [id, firstName, lastName]
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeNumber:
+          type: string
+          example: EMP-10042
+        firstName:
+          type: string
+          example: Max
+        lastName:
+          type: string
+          example: Mustermann
+        phone:
+          type: string
+          example: +49-171-1234567
+        email:
+          type: string
+          format: email
+          example: max.mustermann@example.com
+        language:
+          type: string
+          example: de
+        notes:
+          type: string
+          example: Prefers SMS notifications
+
+    Vehicle:
+      type: object
+      required: [id, type, licensePlate]
+      properties:
+        id:
+          type: string
+          format: uuid
+        fleetNumber:
+          type: string
+          example: FL-2201
+        type:
+          $ref: '#/components/schemas/VehicleType'
+        licensePlate:
+          type: string
+          example: GI-AB-1234
+        trailerPlate:
+          type: string
+          example: GI-XY-9876
+        adr:
+          type: boolean
+          example: false
+        refrigerated:
+          type: boolean
+          example: false
+        heightCm:
+          type: integer
+          example: 400
+        lengthCm:
+          type: integer
+          example: 1650
+        weightKg:
+          type: integer
+          example: 40000
+
+    Reservation:
+      type: object
+      required:
+        - id
+        - parkingLotId
+        - status
+        - checkIn
+        - checkOut
+        - totalPrice
+      properties:
+        id:
+          type: string
+          format: uuid
+        reservationNumber:
+          type: string
+          example: R-20260410-000123
+        parkingLotId:
+          type: string
+          format: uuid
+        driverId:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ReservationStatus'
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+        accessCode:
+          type: string
+          example: 592841
+        totalPrice:
+          $ref: '#/components/schemas/Money'
+        currency:
+          type: string
+          example: EUR
+        createdAt:
+          type: string
+          format: date-time
+        cancelledAt:
+          type: string
+          format: date-time
+        cancellationReason:
+          type: string
+        notes:
+          type: string
+
+    CreateReservationRequest:
+      type: object
+      required:
+        - parkingLotId
+        - checkIn
+        - checkOut
+        - driverId
+        - vehicleId
+      properties:
+        parkingLotId:
+          type: string
+          format: uuid
+        driverId:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          example: Late arrival after 22:00
+
+    CreateDriverRequest:
+      type: object
+      required: [firstName, lastName]
+      properties:
+        employeeNumber:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        language:
+          type: string
+        notes:
+          type: string
+
+    UpdateDriverRequest:
+      type: object
+      properties:
+        employeeNumber:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        language:
+          type: string
+        notes:
+          type: string
+
+    CreateVehicleRequest:
+      type: object
+      required: [type, licensePlate]
+      properties:
+        fleetNumber:
+          type: string
+        type:
+          $ref: '#/components/schemas/VehicleType'
+        licensePlate:
+          type: string
+        trailerPlate:
+          type: string
+        adr:
+          type: boolean
+        refrigerated:
+          type: boolean
+        heightCm:
+          type: integer
+        lengthCm:
+          type: integer
+        weightKg:
+          type: integer
+
+    UpdateVehicleRequest:
+      type: object
+      properties:
+        fleetNumber:
+          type: string
+        type:
+          $ref: '#/components/schemas/VehicleType'
+        licensePlate:
+          type: string
+        trailerPlate:
+          type: string
+        adr:
+          type: boolean
+        refrigerated:
+          type: boolean
+        heightCm:
+          type: integer
+        lengthCm:
+          type: integer
+        weightKg:
+          type: integer
+
+    PaginationMeta:
+      type: object
+      required: [page, pageSize, totalItems, totalPages]
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 20
+        totalItems:
+          type: integer
+          example: 124
+        totalPages:
+          type: integer
+          example: 7
+
+    PaginatedParkingLotList:
+      type: object
+      required: [items, meta]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParkingLot'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    PaginatedReservationList:
+      type: object
+      required: [items, meta]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reservation'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    PaginatedDriverList:
+      type: object
+      required: [items, meta]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    PaginatedVehicleList:
+      type: object
+      required: [items, meta]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vehicle'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: reservation_conflict
+        message:
+          type: string
+          example: The requested slot is not available anymore.
+        details:
+          type: object
+          additionalProperties: true
