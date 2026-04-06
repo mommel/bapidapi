@@ -1,0 +1,59 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+# Require all CI checks to pass before this workflow runs
+# Configured via Branch Protection Rules in the repository settings
+
+jobs:
+  deploy:
+    name: SSH Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          script: |
+            set -e
+
+            echo "=== Navigating to project directory ==="
+            cd /var/www/bapidapi
+
+            echo "=== Pulling latest Docker images ==="
+            docker compose -f compose.prod.yaml pull
+
+            echo "=== Restarting containers ==="
+            docker compose -f compose.prod.yaml up -d --remove-orphans
+
+            echo "=== Running database migrations ==="
+            docker compose -f compose.prod.yaml exec -T app php artisan migrate --force
+
+            echo "=== Restarting queue workers ==="
+            docker compose -f compose.prod.yaml exec -T app php artisan queue:restart
+
+            echo "=== Clearing and warming caches ==="
+            docker compose -f compose.prod.yaml exec -T app php artisan config:cache
+            docker compose -f compose.prod.yaml exec -T app php artisan route:cache
+            docker compose -f compose.prod.yaml exec -T app php artisan view:cache
+
+            echo "=== Verifying deployment ==="
+            docker compose -f compose.prod.yaml exec -T app php artisan --version
+
+            echo "=== Deployment complete ==="
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Deployment failed! Manual intervention required."
+          # Add Slack/Discord notification here if needed

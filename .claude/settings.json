@@ -1,0 +1,18 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(docker compose*)",
+            "Bash(./vendor/bin/pest*)",
+            "Bash(./vendor/bin/pint*)",
+            "Bash(php artisan*)",
+            "Bash(composer*)",
+            "Bash(git log*)",
+            "Bash(git diff*)",
+            "Bash(git status*)"
+        ],
+        "deny": [
+            "Bash(rm -rf*)",
+            "Bash(docker compose down -v*)"
+        ]
+    }
+}

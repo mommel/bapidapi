@@ -1,0 +1,51 @@
+name: Swagger Auto-Regenerate
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'app/Http/Controllers/**'
+      - 'routes/api.php'
+      - 'app/docs/**'
+
+jobs:
+  regenerate-swagger:
+    name: Regenerate OpenAPI Specification
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql
+          coverage: none
+
+      - name: Install dependencies (no dev)
+        run: composer install --no-dev --prefer-dist --no-interaction
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Regenerate OpenAPI specification
+        env:
+          L5_SWAGGER_GENERATE_ALWAYS: 'true'
+        run: php artisan l5-swagger:generate
+
+      - name: Auto-commit updated spec
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs(swagger): auto-regenerate OpenAPI spec [skip ci]"
+          file_pattern: "storage/api-docs/*"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
