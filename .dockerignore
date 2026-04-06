@@ -1,0 +1,33 @@
+.git
+.github
+.agents
+.claude
+.vscode
+.idea
+
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Composer
+vendor/
+
+# Laravel
+bootstrap/cache/*
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing/*
+.env
+.env.backup
+.env.testing
+
+# Tests
+tests/
+phpunit.xml
+phpunit.result.cache
+coverage/
+
+# Mac
+.DS_Store

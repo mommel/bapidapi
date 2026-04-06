@@ -2,7 +2,7 @@
 
 > **Living Document** — This file is the single source of truth for the project. It must be updated whenever the project changes. AI agents and human developers alike should consult this document at the start of every session.
 >
-> **Last updated:** 2026-04-06 | **Status:** 🟡 Planning Phase
+> **Last updated:** 2026-04-06 | **Status:** 🟢 Execution (Phase 1)
 
 ---
 
@@ -596,11 +596,11 @@ After completing all phases, verify each item:
 
 | # | Question | Status | Decision |
 |---|---|---|---|
-| 1 | What domain-specific entities will the API manage beyond Users? | Open | TBD |
-| 2 | Will file uploads be required? Local storage or S3-compatible? | Open | TBD |
-| 3 | What is the target production hosting environment? (VPS, AWS ECS, DigitalOcean?) | Open | TBD |
-| 4 | Should the API support versioning beyond `/v1`? | Open | TBD |
-| 5 | Email provider for password reset? (Mailgun, SES, SMTP?) | Open | TBD |
+| 1 | What domain-specific entities will the API manage beyond Users? | Resolved | Order parking lots |
+| 2 | Will file uploads be required? Local storage or S3-compatible? | Resolved | Both should be supported (S3 compatible available in Docker too via MinIO/similar) |
+| 3 | What is the target production hosting environment? | Resolved | VPS Docker and Azure Container App |
+| 4 | Should the API support versioning beyond `/v1`? | Resolved | `/v1` for now, `/v2` possible in the future |
+| 5 | Email provider for password reset? | Resolved | Mailpit for now |
 | 6 | Custom domain and TLS cert for `/api/docs`? | Open | TBD |
 | 7 | Codecov or self-hosted coverage reporting? | Recommended | Codecov (free for public repos) |
 
