@@ -84,7 +84,7 @@ describe('POST /api/v1/auth/login', function () {
 });
 
 describe('GET /api/v1/auth/me', function () {
-    it('returns the authenticated user', function () {
+    it('returns the authenticated user with structured data', function () {
         $token = authToken();
 
         $response = $this->getJson('/api/v1/auth/me', [
@@ -92,7 +92,11 @@ describe('GET /api/v1/auth/me', function () {
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['success', 'data']);
+            ->assertJsonStructure([
+                'success',
+                'data' => ['id', 'name', 'email'],
+            ])
+            ->assertJsonMissing(['password']);
     });
 
     it('returns 401 without a token', function () {
@@ -103,7 +107,7 @@ describe('GET /api/v1/auth/me', function () {
 });
 
 describe('POST /api/v1/auth/logout', function () {
-    it('invalidates the token', function () {
+    it('invalidates the token and blacklists it', function () {
         $token = authToken();
 
         $response = $this->postJson('/api/v1/auth/logout', [], [
@@ -111,11 +115,58 @@ describe('POST /api/v1/auth/logout', function () {
         ]);
 
         $response->assertStatus(200);
+
+        // Token should now be blacklisted in the database
+        $this->assertDatabaseCount('jwt_blacklists', 1);
     });
 
     it('returns 401 without a token', function () {
         $response = $this->postJson('/api/v1/auth/logout');
 
         $response->assertStatus(401);
+    });
+});
+
+describe('POST /api/v1/auth/password/forgot', function () {
+    it('returns 200 for existing email (does not reveal existence)', function () {
+        $user = User::factory()->create();
+
+        $response = $this->postJson('/api/v1/auth/password/forgot', [
+            'email' => $user->email,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+    });
+
+    it('returns 422 when email is missing', function () {
+        $response = $this->postJson('/api/v1/auth/password/forgot', []);
+
+        $response->assertStatus(422);
+    });
+});
+
+describe('POST /api/v1/auth/password/reset', function () {
+    it('returns 422 when token is missing', function () {
+        $response = $this->postJson('/api/v1/auth/password/reset', [
+            'email' => fake()->safeEmail(),
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertStatus(422);
+    });
+
+    it('returns 400 for invalid reset token', function () {
+        $user = User::factory()->create();
+
+        $response = $this->postJson('/api/v1/auth/password/reset', [
+            'token' => 'invalid-token-value',
+            'email' => $user->email,
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertStatus(400);
     });
 });

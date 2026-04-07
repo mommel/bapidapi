@@ -4,6 +4,7 @@
 /public/storage
 /storage/*.key
 /vendor
+/.info_ai
 .env
 .env.backup
 .env.production

@@ -31,8 +31,13 @@ Route::get('/health', function () {
     ]);
 });
 
-Route::post('/auth/register', [AuthController::class, 'register']);
-Route::post('/auth/login', [AuthController::class, 'login']);
+// Auth — rate limited (6 requests per minute)
+Route::middleware('throttle:6,1')->group(function () {
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/password/forgot', [AuthController::class, 'forgotPassword']);
+    Route::post('/auth/password/reset', [AuthController::class, 'resetPassword']);
+});
 
 // ── Authenticated ────────────────────────────────────────────────────────
 
