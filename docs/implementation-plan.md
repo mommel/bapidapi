@@ -263,7 +263,7 @@ db:
 - [x] Install `darkaonline/l5-swagger` v11.0
 - [x] Install `php-open-source-saver/jwt-auth` v2.9
 - [x] Install `Laravel Pint` (dev) — bundled with Laravel 12
-- [ ] Install `Pest` (dev) — dependency conflict with PHPUnit 11, deferred
+- [x] Install `Pest` v3 (dev) — resolved with `--with-all-dependencies` flag
 - [ ] Install `PCOV` PHP extension in Docker image (coverage driver)
 - [x] Create `ForceJsonResponse` middleware — `app/Http/Middleware/ForceJsonResponse.php`
 - [x] Create `SecurityHeaders` middleware — `app/Http/Middleware/SecurityHeaders.php` (HSTS, X-Frame-Options, X-Content-Type-Options, CSP, Referrer-Policy)
@@ -346,7 +346,7 @@ Error responses:
 ### Tasks
 
 - [x] Define endpoint catalogue — `docs/api2integradte.openapi.yml` (source OpenAPI spec)
-- [ ] Create base `ApiController` extending `Controller` with shared response helpers
+- [ ] Create base `ApiController` extending `Controller` with shared response helpers (deferred — controllers use direct `response()->json()` for now)
 - [x] Implement repositories with interface + Eloquent implementation:
   - `app/Repositories/DriverRepositoryInterface.php` → `Eloquent/EloquentDriverRepository.php`
   - `app/Repositories/VehicleRepositoryInterface.php` → `Eloquent/EloquentVehicleRepository.php`
@@ -368,10 +368,18 @@ Error responses:
 - [x] Paginate all list endpoints (`?page=1&pageSize=20`)
 - [x] Implement filtering: geo-radius search (ParkingLot), text search (Driver, Vehicle), status/date filters (Reservation)
 - [x] Database migrations for all 4 domain tables (UUID primary keys, foreign keys with cascade/set null)
-- [ ] Write Pest feature tests for all endpoints (401, 422, success, pagination)
-- [ ] Write model factories for seeding and testing
+- [x] Write Pest feature tests for all endpoints — 48 tests, 122 assertions, all passing:
+  - `tests/Feature/Api/Auth/AuthTest.php` — register, login, me, logout (success + 401 + 422)
+  - `tests/Feature/Api/DriverTest.php` — list, create, show, update, search (success + 401 + 422 + 404)
+  - `tests/Feature/Api/VehicleTest.php` — list, create, show, update (success + 401 + 422 + 404)
+  - `tests/Feature/Api/ParkingLotTest.php` — list, show, availability (success + 401 + 404)
+  - `tests/Feature/Api/ReservationTest.php` — list, create, show, cancel (success + 401 + 422 + 404 + 409)
+- [x] Write model factories for all domain entities:
+  - `database/factories/DriverFactory.php`, `VehicleFactory.php`, `ParkingLotFactory.php`, `ReservationFactory.php`
+- [x] Configure `phpunit.xml` to use PostgreSQL (same engine as production)
+- [x] Configure `tests/Pest.php` with `RefreshDatabase` trait and `authToken()` helper
 
-**Status:** In progress. Core CRUD endpoints are functional (21 routes registered, verified via test script). Tests, OpenAPI annotations, and factories are next.
+**Completed:** 2026-04-07. All core CRUD endpoints functional (21 routes), 48 passing feature tests with Faker-driven payloads. Remaining: OpenAPI annotations (Phase 6) and base ApiController (deferred).
 
 ---
 

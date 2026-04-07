@@ -2,7 +2,7 @@
 
 > **Mandatory for all contributors and AI agents.**
 > These guidelines are enforced automatically in CI via Laravel Pint.
-> **Last Updated:** 2026-04-06
+> **Last Updated:** 2026-04-07
 
 ---
 
@@ -108,8 +108,9 @@ class AuthService
 **Service rules:**
 - Services contain ALL business logic.
 - Services MUST NOT write database queries directly — use repositories.
-- Services MUST NOT return Eloquent models — return arrays or DTOs.
+- Services injecting other services is permitted (e.g., `ReservationService` uses `ParkingLotService` for availability).
 - Services MUST be injected into controllers via the constructor.
+- Services return Eloquent models or structured arrays; the controller wraps them in `JsonResource` for output.
 
 ### Repository conventions
 
@@ -194,9 +195,31 @@ class User extends Model
 **Model rules:**
 - `$fillable` MUST be defined. `$guarded = []` is banned.
 - `$hidden` MUST include `password` and any sensitive fields.
-- `$casts` MUST be defined for dates, booleans, and encrypted fields.
+- `$casts` MUST be defined for dates, booleans, JSON, and encrypted fields.
 - Business logic does NOT belong in models.
 - Relationships defined as methods using type hints.
+- All domain models MUST use UUID primary keys via the `HasUuids` trait.
+- JSON columns (e.g., `amenities`, `capacity`, `pricing`) MUST be cast to `array`.
+
+```php
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+
+class ParkingLot extends Model
+{
+    use HasFactory, HasUuids;
+
+    protected $fillable = ['name', 'amenities', ...];
+
+    protected function casts(): array
+    {
+        return [
+            'amenities' => 'array',
+            'capacity' => 'array',
+            'latitude' => 'decimal:7',
+        ];
+    }
+}
+```
 
 ---
 
@@ -285,6 +308,53 @@ class LoginRequest extends FormRequest
 - Use Laravel validation rule objects or rule arrays (not rule strings alone for complex rules).
 - Sanitize and cast inputs via `prepareForValidation()` where needed.
 
+### camelCase → snake_case mapping
+
+The API accepts **camelCase** JSON keys (per the OpenAPI spec) but models use **snake_case** columns. FormRequests MUST handle this mapping by overriding the `validated()` method:
+
+```php
+public function rules(): array
+{
+    return [
+        'firstName' => 'required|string|max:255',  // camelCase in API
+        'lastName' => 'required|string|max:255',
+    ];
+}
+
+public function validated($key = null, $default = null): mixed
+{
+    $validated = parent::validated();
+
+    return [
+        'first_name' => $validated['firstName'],    // snake_case for DB
+        'last_name' => $validated['lastName'],
+    ];
+}
+```
+
+For PATCH (partial update) requests, only map keys that were actually submitted:
+
+```php
+public function validated($key = null, $default = null): mixed
+{
+    $validated = parent::validated();
+    $mapped = [];
+
+    $mapping = [
+        'firstName' => 'first_name',
+        'lastName' => 'last_name',
+    ];
+
+    foreach ($mapping as $camel => $snake) {
+        if (array_key_exists($camel, $validated)) {
+            $mapped[$snake] = $validated[$camel];
+        }
+    }
+
+    return $mapped;
+}
+```
+
 ---
 
 ## 6. Security Rules (Non-Negotiable)
@@ -329,9 +399,52 @@ it('returns a list of users when authenticated', function () {
 **Testing rules:**
 - Test file names must match the class they test: `UserService` -> `UserServiceTest.php`
 - Every endpoint must have a test for: unauthorized (401), forbidden (403), invalid input (422), and success (200/201)
-- Use factories to generate test data — never hardcode values
+- Use factories and Faker to generate test data — never hardcode values for success-path tests
 - Use `RefreshDatabase` trait to reset state between tests
 - Mock external services (email, payment, etc.) in unit tests
+- Test database MUST use PostgreSQL (same engine as production) — configured in `phpunit.xml`
+- Use `assertDatabaseHas()` to verify write operations, not just response assertions
+
+### Test helper: `authToken()`
+
+Defined in `tests/Pest.php`, creates a user and returns a valid JWT:
+
+```php
+function authToken(): string
+{
+    $user = \App\Models\User::factory()->create();
+    return auth('api')->login($user);
+}
+```
+
+Usage in tests:
+```php
+it('creates a driver with valid data', function () {
+    $token = authToken();
+    $fake = Driver::factory()->make();
+
+    $response = $this->postJson('/api/v1/drivers', [
+        'firstName' => $fake->first_name,
+        'lastName' => $fake->last_name,
+    ], [
+        'Authorization' => "Bearer $token",
+    ]);
+
+    $response->assertStatus(201);
+
+    $this->assertDatabaseHas('drivers', [
+        'first_name' => $fake->first_name,
+    ]);
+});
+```
+
+### Factories
+
+Every model MUST have a factory in `database/factories/`. Factories MUST:
+- Use `declare(strict_types=1);`
+- Generate realistic data via Faker (no placeholder strings like `"test"` or `"foo"`)
+- Auto-create related models via Factory relationships (`ParkingLot::factory()` in `ReservationFactory`)
+- Support state modifications for specific test scenarios
 
 ---
 
