@@ -2,7 +2,7 @@
 
 > **Living Document** — This file is the single source of truth for the project. It must be updated whenever the project changes. AI agents and human developers alike should consult this document at the start of every session.
 >
-> **Last updated:** 2026-04-06 | **Status:** 🟢 Execution (Phase 1)
+> **Last updated:** 2026-04-07 | **Status:** 🟢 Execution (Phase 4 — Core API Endpoints)
 
 ---
 
@@ -194,15 +194,15 @@ bapidapi/
 
 ### Tasks
 
-- [ ] Initialize git repository with `.gitignore` (Laravel template)
-- [ ] Create `docs/` skeleton (this file + placeholder docs)
-- [ ] Create root AI agent context files: `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `.github/copilot-instructions.md`
-- [ ] Create `.claude/` directory with rules
-- [ ] Create `.agents/workflows/` directory for Gemini/Antigravity
-- [ ] Create `README.md` with project overview and quick-start
-- [ ] Create `.env.example` template
+- [x] Initialize git repository with `.gitignore` (Laravel template)
+- [x] Create `docs/` skeleton (this file + placeholder docs)
+- [x] Create root AI agent context files: `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `.github/copilot-instructions.md`
+- [x] Create `.claude/` directory with rules
+- [x] Create `.agents/workflows/` directory for Gemini/Antigravity
+- [x] Create `README.md` with project overview and quick-start
+- [x] Create `.env.example` template
 
-**Acceptance criteria:** `git status` shows a clean commit with all scaffolding files present.
+**Acceptance criteria:** `git status` shows a clean commit with all scaffolding files present. ✅ Completed 2026-04-06.
 
 ---
 
@@ -222,17 +222,20 @@ bapidapi/
 
 ### Tasks
 
-- [ ] Write `Dockerfile` with `dev` and `prod` build targets (multi-stage)
+- [x] Write `Dockerfile` with `dev` and `prod` build targets (multi-stage)
   - Dev target: includes Composer, Xdebug, dev PHP extensions
   - Prod target: no dev tools, runs as `www-data`, OPcache enabled
-- [ ] Write `compose.yaml` (dev) — bind-mounts source code for hot reload
-- [ ] Write `compose.prod.yaml` — no bind mounts, read-only FS where possible
-- [ ] Write `docker/nginx/dev.conf` — proxy pass to php-fpm
-- [ ] Write `docker/php/php-dev.ini` — xdebug config, memory limits
-- [ ] Write `docker/supervisor/supervisord.conf` — queue worker
-- [ ] Write `.dockerignore` — exclude `.git`, `tests`, `node_modules`, `storage/logs`
-- [ ] Verify: `docker compose up --build -d && docker compose exec app php artisan --version` prints `Laravel Framework 12.x.x`
-- [ ] Document exact steps in `docs/getting-started.md`
+- [x] Write `compose.yaml` (dev) — bind-mounts source code for hot reload
+  - Added MinIO (S3-compatible) service for local object storage
+- [x] Write `compose.prod.yaml` — no bind mounts, read-only FS where possible
+- [x] Write `docker/nginx/dev.conf` — proxy pass to php-fpm
+- [x] Write `docker/php/php-dev.ini` — xdebug config, memory limits
+- [x] Write `docker/supervisor/supervisord.conf` — queue worker
+- [x] Write `.dockerignore` — exclude `.git`, `tests`, `node_modules`, `storage/logs`
+- [x] Verify: `docker compose up --build -d && docker compose exec app php artisan --version` prints `Laravel Framework 12.56.0` ✅
+- [x] Document exact steps in `docs/getting-started.md`
+
+**Completed:** 2026-04-06. Xdebug version pinning issue resolved by using latest compatible version.
 
 ### Key docker-compose health checks
 
@@ -253,23 +256,22 @@ db:
 
 ### Tasks
 
-- [ ] Install Laravel 12 inside Docker container:
-  ```bash
-  docker compose exec app composer create-project laravel/laravel . "^12.0"
-  ```
-- [ ] Configure `config/database.php` default connection to `pgsql`
-- [ ] Set `.env` PostgreSQL credentials (matching compose service names)
-- [ ] Run initial migrations: `php artisan migrate`
-- [ ] Install `darkaonline/l5-swagger`: `composer require darkaonline/l5-swagger`
-- [ ] Install `php-open-source-saver/jwt-auth`: `composer require php-open-source-saver/jwt-auth`
-- [ ] Install `Laravel Pint` (dev): `composer require --dev laravel/pint`
-- [ ] Install `Pest` (dev): `composer require --dev pestphp/pest pestphp/pest-plugin-laravel`
+- [x] Install Laravel 12 inside Docker container (v12.56.0)
+- [x] Configure `config/database.php` default connection to `pgsql`
+- [x] Set `.env` PostgreSQL credentials (matching compose service names)
+- [x] Run initial migrations: `php artisan migrate`
+- [x] Install `darkaonline/l5-swagger` v11.0
+- [x] Install `php-open-source-saver/jwt-auth` v2.9
+- [x] Install `Laravel Pint` (dev) — bundled with Laravel 12
+- [ ] Install `Pest` (dev) — dependency conflict with PHPUnit 11, deferred
 - [ ] Install `PCOV` PHP extension in Docker image (coverage driver)
-- [ ] Create `ForceJsonResponse` middleware — ensures all responses are `application/json`
-- [ ] Create `SecurityHeaders` middleware — adds HSTS, X-Frame-Options, etc.
-- [ ] Register middlewares in `bootstrap/app.php` (Laravel 12 style)
-- [ ] Create `routes/api.php` skeleton with versioned prefix `/api/v1`
-- [ ] Verify: `GET /api/v1/health` returns `{"status":"ok","version":"1.0.0"}`
+- [x] Create `ForceJsonResponse` middleware — `app/Http/Middleware/ForceJsonResponse.php`
+- [x] Create `SecurityHeaders` middleware — `app/Http/Middleware/SecurityHeaders.php` (HSTS, X-Frame-Options, X-Content-Type-Options, CSP, Referrer-Policy)
+- [x] Register middlewares in `bootstrap/app.php` (Laravel 12 style)
+- [x] Create `routes/api.php` skeleton with versioned prefix `/api/v1`
+- [x] Verify: `GET /api/v1/health` returns `{"success":true,"data":{"status":"ok"},"meta":{"version":"1.0.0"}}` ✅
+
+**Completed:** 2026-04-06.
 
 ### API Response Structure (standard)
 
@@ -308,23 +310,25 @@ Error responses:
 
 ### Tasks
 
-- [ ] Publish JWT config: `php artisan vendor:publish --provider="PHPOpenSourceSaver\JWTAuth\Providers\LaravelServiceProvider"`
-- [ ] Generate JWT secret: `php artisan jwt:secret` (writes to `.env`)
-- [ ] Update `User` model to implement `JWTSubject` interface
-- [ ] Update `config/auth.php` to set `api` guard driver to `jwt`
-- [ ] Create `AuthController` with:
-  - `POST /api/v1/auth/register` — create user, return tokens
-  - `POST /api/v1/auth/login` — validate credentials, return JWT access + refresh tokens
-  - `POST /api/v1/auth/logout` — blacklist current token
-  - `POST /api/v1/auth/refresh` — rotate access token using refresh token
-  - `GET  /api/v1/auth/me` — return authenticated user profile
+- [x] Publish JWT config: `php artisan vendor:publish --provider="PHPOpenSourceSaver\JWTAuth\Providers\LaravelServiceProvider"`
+- [x] Generate JWT secret: `php artisan jwt:secret` (writes to `.env`)
+- [x] Update `User` model to implement `JWTSubject` interface — `app/Models/User.php`
+- [x] Update `config/auth.php` to set `api` guard driver to `jwt`
+- [x] Create `AuthController` (`app/Http/Controllers/Api/AuthController.php`) with:
+  - `POST /api/v1/auth/register` — create user, return tokens ✅
+  - `POST /api/v1/auth/login` — validate credentials, return JWT access + refresh tokens ✅
+  - `POST /api/v1/auth/logout` — blacklist current token ✅
+  - `POST /api/v1/auth/refresh` — rotate access token using refresh token ✅
+  - `GET  /api/v1/auth/me` — return authenticated user profile ✅
 - [ ] Implement token blacklist using database table (for revocation on logout)
-- [ ] Add `auth:api` middleware to protected routes
-- [ ] Short-lived access tokens (15 min default, configurable via env)
-- [ ] Longer-lived refresh tokens (7 days default)
+- [x] Add `auth:api` middleware to protected routes
+- [x] Short-lived access tokens (15 min default, configurable via `JWT_TTL` env)
+- [x] Longer-lived refresh tokens (7 days default, configurable via `JWT_REFRESH_TTL` env)
 - [ ] Add rate limiting: `throttle:6,1` on auth routes
 - [ ] Add `POST /api/v1/auth/password/forgot` and `POST /api/v1/auth/password/reset`
-- [ ] Verify with curl: full auth flow works correctly
+- [x] Verify: full auth flow (register → login → token → authenticated request) works ✅
+
+**Completed (core):** 2026-04-06. Token blacklist, rate limiting, and password reset still pending.
 
 ---
 
@@ -341,14 +345,33 @@ Error responses:
 
 ### Tasks
 
-- [ ] Define endpoint catalogue in `docs/api-endpoints.md`
+- [x] Define endpoint catalogue — `docs/api2integradte.openapi.yml` (source OpenAPI spec)
 - [ ] Create base `ApiController` extending `Controller` with shared response helpers
-- [ ] Implement repositories with interface + Eloquent implementation
-- [ ] Implement services calling repositories
-- [ ] Implement controllers calling services with `FormRequest` validation
+- [x] Implement repositories with interface + Eloquent implementation:
+  - `app/Repositories/DriverRepositoryInterface.php` → `Eloquent/EloquentDriverRepository.php`
+  - `app/Repositories/VehicleRepositoryInterface.php` → `Eloquent/EloquentVehicleRepository.php`
+  - `app/Repositories/ParkingLotRepositoryInterface.php` → `Eloquent/EloquentParkingLotRepository.php`
+  - `app/Repositories/ReservationRepositoryInterface.php` → `Eloquent/EloquentReservationRepository.php`
+- [x] Implement services calling repositories:
+  - `app/Services/DriverService.php`, `VehicleService.php`, `ParkingLotService.php`, `ReservationService.php`
+  - ParkingLotService includes availability check (Haversine geo-search, overlapping reservation counting)
+  - ReservationService includes cancellation business rules
+- [x] Implement controllers calling services with `FormRequest` validation:
+  - `app/Http/Controllers/Api/DriverController.php` — GET list, POST create, GET show, PATCH update
+  - `app/Http/Controllers/Api/VehicleController.php` — GET list, POST create, GET show, PATCH update
+  - `app/Http/Controllers/Api/ParkingLotController.php` — GET list, GET show, GET availability
+  - `app/Http/Controllers/Api/ReservationController.php` — GET list, POST create, GET show, DELETE cancel
+- [x] Implement FormRequests: `StoreDriverRequest`, `UpdateDriverRequest`, `StoreVehicleRequest`, `UpdateVehicleRequest`, `StoreReservationRequest`
+- [x] Implement API Resources: `DriverResource`, `VehicleResource`, `ParkingLotResource`, `ReservationResource`
+- [x] Bind repository interfaces in `AppServiceProvider`
 - [ ] Add OpenAPI annotations to each controller method (see Phase 6)
-- [ ] Paginate all list endpoints (`?page=1&per_page=15`)
-- [ ] Implement filtering and sorting via query parameters
+- [x] Paginate all list endpoints (`?page=1&pageSize=20`)
+- [x] Implement filtering: geo-radius search (ParkingLot), text search (Driver, Vehicle), status/date filters (Reservation)
+- [x] Database migrations for all 4 domain tables (UUID primary keys, foreign keys with cascade/set null)
+- [ ] Write Pest feature tests for all endpoints (401, 422, success, pagination)
+- [ ] Write model factories for seeding and testing
+
+**Status:** In progress. Core CRUD endpoints are functional (21 routes registered, verified via test script). Tests, OpenAPI annotations, and factories are next.
 
 ---
 

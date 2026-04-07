@@ -2,7 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\ParkingLotController;
+use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes — /api/v1
+|--------------------------------------------------------------------------
+*/
+
+// ── Public ───────────────────────────────────────────────────────────────
 
 Route::get('/health', function () {
     return response()->json([
@@ -18,11 +31,37 @@ Route::get('/health', function () {
     ]);
 });
 
-Route::group(['prefix' => 'auth', 'namespace' => 'App\Http\Controllers\Api'], function () {
-    Route::post('/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
-    Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
-    Route::post('/logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware('auth:api');
-    Route::post('/refresh', [\App\Http\Controllers\Api\AuthController::class, 'refresh'])->middleware('auth:api');
-    Route::get('/me', [\App\Http\Controllers\Api\AuthController::class, 'me'])->middleware('auth:api');
-});
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
 
+// ── Authenticated ────────────────────────────────────────────────────────
+
+Route::middleware('auth:api')->group(function () {
+    // Auth
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
+
+    // Parking Lots
+    Route::get('/parking-lots', [ParkingLotController::class, 'index']);
+    Route::get('/parking-lots/{parkingLotId}', [ParkingLotController::class, 'show']);
+    Route::get('/parking-lots/{parkingLotId}/availability', [ParkingLotController::class, 'availability']);
+
+    // Reservations
+    Route::get('/reservations', [ReservationController::class, 'index']);
+    Route::post('/reservations', [ReservationController::class, 'store']);
+    Route::get('/reservations/{reservationId}', [ReservationController::class, 'show']);
+    Route::delete('/reservations/{reservationId}', [ReservationController::class, 'destroy']);
+
+    // Drivers
+    Route::get('/drivers', [DriverController::class, 'index']);
+    Route::post('/drivers', [DriverController::class, 'store']);
+    Route::get('/drivers/{driverId}', [DriverController::class, 'show']);
+    Route::patch('/drivers/{driverId}', [DriverController::class, 'update']);
+
+    // Vehicles
+    Route::get('/vehicles', [VehicleController::class, 'index']);
+    Route::post('/vehicles', [VehicleController::class, 'store']);
+    Route::get('/vehicles/{vehicleId}', [VehicleController::class, 'show']);
+    Route::patch('/vehicles/{vehicleId}', [VehicleController::class, 'update']);
+});
