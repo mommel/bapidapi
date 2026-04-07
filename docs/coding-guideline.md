@@ -364,7 +364,7 @@ public function validated($key = null, $default = null): mixed
 3. **No secrets in code.** All configuration via `.env` only.
 4. **No `dd()`, `dump()`, `var_dump()` in production code.** Use `Log::debug()` instead.
 5. **No passwords in logs.** Mask sensitive fields in log contexts.
-6. **No `APP_DEBUG=true` in production.** Enforced by Enlightn in CI.
+6. **No `APP_DEBUG=true` in production.** Enforced by CI production-config validation; re-enable Enlightn enforcement once Laravel 12 is supported upstream.
 7. **Input validation before any database operation.**
 8. **Output through JsonResource always** — never return Eloquent models directly.
 

@@ -409,8 +409,8 @@ Error responses:
 - [ ] Create `SecurityHeaders` middleware (HSTS, X-Content-Type-Options, X-Frame-Options, CSP, Referrer-Policy)
 - [ ] Create `ForceJsonResponse` middleware
 - [ ] Enable `APP_DEBUG=false` enforcement check in CI
-- [ ] Install `enlightn/enlightn`: `composer require --dev enlightn/enlightn` — runs security checks
-- [ ] Add `php artisan enlightn` to CI pipeline
+- [ ] Re-evaluate `enlightn/enlightn` when it supports Laravel 12 and re-enable it in CI
+- [x] Add Laravel production config validation to CI while Enlightn support is unavailable
 - [ ] Configure `config/cors.php` with explicit allowed origins (env-configurable)
 - [ ] Ensure all models have explicit `$fillable`
 - [ ] Validate Content-Type header on POST/PUT/PATCH routes
@@ -501,7 +501,7 @@ jobs:
 |---|---|---|
 | `.github/workflows/lint.yml` | push, PR | Laravel Pint style check |
 | `.github/workflows/tests.yml` | push, PR | Pest + PHPUnit + coverage (80%+ min) |
-| `.github/workflows/security.yml` | push, weekly | `composer audit` + Enlightn + Trivy image scan |
+| `.github/workflows/security.yml` | push, weekly | `composer audit` + Laravel production config validation + Trivy image scan; run Enlightn when Laravel support is available |
 | `.github/workflows/swagger.yml` | controller/route changes | Regenerate + auto-commit OpenAPI spec |
 | `.github/workflows/deploy.yml` | push to `main` | SSH deploy to production server |
 
@@ -616,7 +616,7 @@ After completing all phases, verify each item:
 - [ ] Full JWT auth flow: register -> login -> authenticated request -> logout
 - [ ] `GET http://localhost:8080/api/docs` shows interactive Swagger UI
 - [ ] `docker compose exec app ./vendor/bin/pest --coverage --min=80` passes with 80%+
-- [ ] `docker compose exec app php artisan enlightn` reports no critical issues
+- [ ] Re-enable and verify `docker compose exec app php artisan enlightn` once a Laravel 12-compatible release is available
 - [ ] All 5 GitHub Actions workflows pass on `main` branch
 - [ ] `compose.prod.yaml` starts without errors on a clean server
 - [ ] All AI agent context files are present and readable
