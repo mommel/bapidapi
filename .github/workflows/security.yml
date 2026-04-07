@@ -68,7 +68,8 @@ jobs:
         env:
           APP_ENV: production
           APP_DEBUG: false
-        run: php -r "require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); exit((config('app.env') === 'production' && config('app.debug') === false) ? 0 : 1);"
+        run: |
+          php -r "require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); exit((config('app.env') === 'production' && config('app.debug') === false) ? 0 : 1);"
 
       - name: Detect Enlightn command
         id: enlightn
