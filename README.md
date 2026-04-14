@@ -1,5 +1,10 @@
 # bapidapi
 
+
+This is just a demoporject don't use it
+
+
+
 A production-ready, stateless RESTful API built with **PHP 8.3 + Laravel 12**, **PostgreSQL 16**, JWT authentication, and full CI/CD via GitHub Actions.
 
 ---
