@@ -13,8 +13,10 @@ use App\Models\JwtBlacklist;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
 /**
  * Handles user authentication: register, login, logout, refresh, profile, and password reset.
@@ -63,8 +65,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        /** @var string $token */
-        $token = auth('api')->login($user);
+        $token = $this->jwtGuard()->login($user);
 
         return $this->tokenResponse($token);
     }
@@ -109,9 +110,9 @@ class AuthController extends Controller
         $credentials = $request->validated();
 
         /** @var string|false $token */
-        $token = auth('api')->attempt($credentials);
+        $token = $this->jwtGuard()->attempt($credentials);
 
-        if (!$token) {
+        if (! $token) {
             return response()->json([
                 'success' => false,
                 'error' => [
@@ -192,8 +193,7 @@ class AuthController extends Controller
      */
     public function refresh(): JsonResponse
     {
-        /** @var string $token */
-        $token = auth('api')->refresh();
+        $token = $this->jwtGuard()->refresh();
 
         return $this->tokenResponse($token);
     }
@@ -289,7 +289,7 @@ class AuthController extends Controller
             );
         } catch (\Throwable $e) {
             // Silently fail — we never reveal whether the email exists
-            \Illuminate\Support\Facades\Log::warning('Password reset link failed', [
+            Log::warning('Password reset link failed', [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -372,6 +372,17 @@ class AuthController extends Controller
     }
 
     /**
+     * Return the JWT guard cast to its concrete type for static analysis.
+     */
+    private function jwtGuard(): JWTGuard
+    {
+        /** @var JWTGuard $guard */
+        $guard = auth('api');
+
+        return $guard;
+    }
+
+    /**
      * Build the standard token response envelope.
      *
      * @param string $token The JWT access token
@@ -385,8 +396,8 @@ class AuthController extends Controller
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth('api')->factory()->getTTL() * 60,
-                'user' => auth('api')->user(),
+                'expires_in' => $this->jwtGuard()->factory()->getTTL() * 60,
+                'user' => $this->jwtGuard()->user(),
             ],
         ]);
     }

@@ -142,7 +142,7 @@ class DriverController extends Controller
     {
         $driver = $this->driverService->findById($driverId);
 
-        if (!$driver) {
+        if (! $driver) {
             return response()->json([
                 'error' => [
                     'code' => 'NOT_FOUND',
@@ -203,7 +203,7 @@ class DriverController extends Controller
     {
         $driver = $this->driverService->update($driverId, $request->validated());
 
-        if (!$driver) {
+        if (! $driver) {
             return response()->json([
                 'error' => [
                     'code' => 'NOT_FOUND',
