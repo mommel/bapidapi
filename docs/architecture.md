@@ -192,7 +192,7 @@ Developer push
     │
     ├─> Tests (Pest + PHPUnit + coverage) ─────  fail: block PR
     │
-    ├─> Security (Enlightn + Trivy + audit) ───  fail: block PR
+    ├─> Security (audit + Trivy + Laravel config, Enlightn when supported) ───  fail: block PR
     │
     ├─> Swagger (auto-regenerate on change) ───  auto-commit spec
     │

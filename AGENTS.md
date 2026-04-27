@@ -161,7 +161,7 @@ docker compose exec app ./vendor/bin/pest --filter "returns 401"
 GitHub Actions workflows in `.github/workflows/`:
 - `lint.yml` — Pint style check (blocks PR on failure)
 - `tests.yml` — Pest + PHPUnit + coverage 80%+ (blocks PR on failure)
-- `security.yml` — composer audit + Enlightn + Trivy scan
+- `security.yml` — composer audit + Laravel production config check + Trivy scan; runs Enlightn when supported by the current Laravel version
 - `swagger.yml` — auto-regenerate OpenAPI spec on controller/route changes
 - `deploy.yml` — deploy to production on push to `main`
 
