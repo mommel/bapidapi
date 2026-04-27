@@ -1,4 +1,4 @@
-name: Swagger Auto-Regenerate
+name: OpenApi Auto-Regenerate
 
 on:
   push:
