@@ -62,6 +62,7 @@ jobs:
         run: |
           cp .env.example .env.testing
           php artisan key:generate --env=testing
+          php artisan jwt:secret --force --env=testing
 
       - name: Run database migrations
         env:
@@ -85,7 +86,8 @@ jobs:
           DB_PASSWORD: secret
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
-          APP_ENV: testing
+          APP_ENV: testing          
+          JWT_SECRET: test-secret-key-12345678901234567890
         run: ./vendor/bin/pest --coverage --min=80 --ci
 
       - name: Upload coverage report
