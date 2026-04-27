@@ -1,12 +1,13 @@
 name: Security Audit
 
 on:
-  push:
-    branches: [main, develop]
-  schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 6am UTC
+  #push:
+  #  branches: [main, develop]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '30 17 * * 3'  # Every Monday at 6am UTC
+  workflow_dispatch:
 
 permissions:
   contents: read
