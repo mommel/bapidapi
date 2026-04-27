@@ -112,6 +112,7 @@ Request → Nginx → PHP-FPM (Laravel)
 5. **No passwords or tokens in logs**
 6. **All input validated via FormRequest before any operation**
 7. **All output via JsonResource** — never return Eloquent models directly
+8. **Every controller action must have a complete `@OA\` annotation block** — the CI `swagger.yml` will fail without it. See `.agents/workflows/openapi-annotations.md` for templates and rules.
 
 ---
 
@@ -135,6 +136,7 @@ Request → Nginx → PHP-FPM (Laravel)
 | Setup guide | `docs/getting-started.md` |
 | API endpoints | `docs/api-endpoints.md` |
 | Live API docs | `/api/docs` (when running) |
+| **OpenAPI annotation rules** | `.agents/workflows/openapi-annotations.md` |
 
 ---
 
