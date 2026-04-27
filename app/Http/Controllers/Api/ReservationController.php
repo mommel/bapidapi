@@ -26,49 +26,69 @@ class ReservationController extends Controller
      *     summary="List reservations",
      *     description="Returns a paginated list of reservations. Supports filtering by status, driver, vehicle, parking lot, and date range.",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="pageSize", in="query", required=false,
      *         description="Items per page (default 20)",
+     *
      *         @OA\Schema(type="integer", example=20)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="status", in="query", required=false,
+     *
      *         @OA\Schema(type="string", enum={"active","cancelled","completed"})
      *     ),
+     *
      *     @OA\Parameter(
      *         name="driverId", in="query", required=false,
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="vehicleId", in="query", required=false,
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="parkingLotId", in="query", required=false,
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="from", in="query", required=false,
      *         description="Filter reservations from this date (ISO 8601)",
+     *
      *         @OA\Schema(type="string", format="date-time")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="to", in="query", required=false,
      *         description="Filter reservations up to this date (ISO 8601)",
+     *
      *         @OA\Schema(type="string", format="date-time")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Paginated reservation list",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="data", type="array",
+     *
      *                 @OA\Items(ref="#/components/schemas/ReservationResource")
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
@@ -95,10 +115,13 @@ class ReservationController extends Controller
      *     summary="Create a reservation",
      *     description="Creates a new parking reservation. Returns 409 if the slot is no longer available.",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"parkingLotId","driverId","vehicleId","checkIn","checkOut"},
+     *
      *             @OA\Property(property="parkingLotId", type="string", format="uuid"),
      *             @OA\Property(property="driverId", type="string", format="uuid"),
      *             @OA\Property(property="vehicleId", type="string", format="uuid"),
@@ -107,24 +130,32 @@ class ReservationController extends Controller
      *             @OA\Property(property="notes", type="string")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Reservation created",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ReservationResource")
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=409,
      *         description="Conflict — slot unavailable",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
      *     )
      * )
@@ -154,24 +185,32 @@ class ReservationController extends Controller
      *     tags={"Reservations"},
      *     summary="Get a single reservation",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="reservationId", in="path", required=true,
      *         description="Reservation UUID",
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Reservation details",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ReservationResource")
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Reservation not found",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
@@ -180,7 +219,7 @@ class ReservationController extends Controller
     {
         $reservation = $this->reservationService->findById($reservationId);
 
-        if (!$reservation) {
+        if (! $reservation) {
             return response()->json([
                 'error' => [
                     'code' => 'NOT_FOUND',
@@ -200,25 +239,33 @@ class ReservationController extends Controller
      *     summary="Cancel a reservation",
      *     description="Cancels an active reservation. Returns 409 if it cannot be cancelled (e.g. already completed).",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="reservationId", in="path", required=true,
      *         description="Reservation UUID",
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\Response(response=204, description="Reservation cancelled"),
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Reservation not found",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=409,
      *         description="Cannot cancel reservation in its current state",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
@@ -227,7 +274,7 @@ class ReservationController extends Controller
     {
         $result = $this->reservationService->cancel($reservationId);
 
-        if (!$result['success'] && $result['error'] === 'Reservation not found') {
+        if (! $result['success'] && $result['error'] === 'Reservation not found') {
             return response()->json([
                 'error' => [
                     'code' => 'NOT_FOUND',
@@ -236,7 +283,7 @@ class ReservationController extends Controller
             ], 404);
         }
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json([
                 'error' => [
                     'code' => 'CONFLICT',

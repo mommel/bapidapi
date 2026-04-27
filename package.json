@@ -5,9 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "lint": "docker compose run artisan lint",
-        "test": "docker compose run artisan test",
-        "test:coverage": "docker compose run artisan test --coverage"
+        "lint": "docker compose exec app sh -c \"./vendor/bin/pint --test 2>&1 | tail -50\""
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

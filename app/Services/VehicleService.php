@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Vehicle;
 use App\Repositories\VehicleRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use App\Models\Vehicle;
 
 class VehicleService
 {

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Vehicle;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Vehicle>
+ * @extends Factory<Vehicle>
  */
 class VehicleFactory extends Factory
 {
@@ -17,7 +18,7 @@ class VehicleFactory extends Factory
     public function definition(): array
     {
         return [
-            'fleet_number' => 'FL-' . $this->faker->unique()->numerify('####'),
+            'fleet_number' => 'FL-'.$this->faker->unique()->numerify('####'),
             'type' => $this->faker->randomElement(['truck', 'truck_trailer', 'van', 'adr_truck', 'refrigerated_truck']),
             'license_plate' => strtoupper($this->faker->bothify('??-??-####')),
             'trailer_plate' => $this->faker->optional(0.5)->bothify('??-??-####'),

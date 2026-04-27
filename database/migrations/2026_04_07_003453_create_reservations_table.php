@@ -14,23 +14,23 @@ return new class extends Migration
         Schema::create('reservations', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('reservation_number')->unique();
-            
+
             $table->uuid('parking_lot_id');
             $table->uuid('driver_id')->nullable();
             $table->uuid('vehicle_id')->nullable();
-            
+
             $table->string('status');
             $table->timestamp('check_in');
             $table->timestamp('check_out');
-            
+
             $table->string('access_code')->nullable();
             $table->decimal('total_price_amount', 10, 2)->nullable();
             $table->string('total_price_currency', 3)->nullable();
-            
+
             $table->timestamp('cancelled_at')->nullable();
             $table->text('cancellation_reason')->nullable();
             $table->text('notes')->nullable();
-            
+
             $table->timestamps();
 
             $table->foreign('parking_lot_id')->references('id')->on('parking_lots')->onDelete('cascade');

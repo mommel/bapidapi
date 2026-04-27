@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\ParkingLot;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ParkingLot>
+ * @extends Factory<ParkingLot>
  */
 class ParkingLotFactory extends Factory
 {
@@ -17,8 +18,8 @@ class ParkingLotFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => strtoupper($this->faker->countryCode() . '-' . $this->faker->citySuffix() . '-' . $this->faker->numerify('###')),
-            'name' => 'Parking ' . $this->faker->city(),
+            'code' => strtoupper($this->faker->countryCode().'-'.$this->faker->citySuffix().'-'.$this->faker->numerify('###')),
+            'name' => 'Parking '.$this->faker->city(),
             'description' => $this->faker->sentence(),
             'address_street' => $this->faker->streetAddress(),
             'address_postal_code' => $this->faker->postcode(),

@@ -27,28 +27,38 @@ class DriverController extends Controller
      *     summary="List all drivers",
      *     description="Returns a paginated list of drivers. Supports optional full-text search via `q`.",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="pageSize", in="query", required=false,
      *         description="Items per page (default 20)",
+     *
      *         @OA\Schema(type="integer", example=20)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="q", in="query", required=false,
      *         description="Full-text search query",
+     *
      *         @OA\Schema(type="string")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Paginated driver list",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="data", type="array",
+     *
      *                 @OA\Items(ref="#/components/schemas/DriverResource")
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
@@ -70,10 +80,13 @@ class DriverController extends Controller
      *     tags={"Drivers"},
      *     summary="Create a new driver",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"employeeNumber","firstName","lastName"},
+     *
      *             @OA\Property(property="employeeNumber", type="string", example="EMP-001"),
      *             @OA\Property(property="firstName", type="string", example="Jan"),
      *             @OA\Property(property="lastName", type="string", example="Kowalski"),
@@ -83,19 +96,25 @@ class DriverController extends Controller
      *             @OA\Property(property="notes", type="string")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Driver created",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/DriverResource")
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
      *     )
      * )
@@ -116,24 +135,32 @@ class DriverController extends Controller
      *     tags={"Drivers"},
      *     summary="Get a single driver",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="driverId", in="path", required=true,
      *         description="Driver UUID",
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Driver details",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/DriverResource")
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Driver not found",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
@@ -161,14 +188,19 @@ class DriverController extends Controller
      *     tags={"Drivers"},
      *     summary="Update a driver",
      *     security={{"BearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="driverId", in="path", required=true,
      *         description="Driver UUID",
+     *
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="firstName", type="string", example="Jan"),
      *             @OA\Property(property="lastName", type="string", example="Nowak"),
      *             @OA\Property(property="phone", type="string"),
@@ -177,24 +209,32 @@ class DriverController extends Controller
      *             @OA\Property(property="notes", type="string")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Driver updated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/DriverResource")
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Driver not found",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
      *     )
      * )

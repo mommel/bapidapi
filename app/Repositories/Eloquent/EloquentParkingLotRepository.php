@@ -14,15 +14,15 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
     {
         $query = ParkingLot::query();
 
-        if (!empty($filters['countryCode'])) {
+        if (! empty($filters['countryCode'])) {
             $query->where('address_country_code', $filters['countryCode']);
         }
 
-        if (!empty($filters['city'])) {
+        if (! empty($filters['city'])) {
             $query->where('address_city', 'ilike', "%{$filters['city']}%");
         }
 
-        if (!empty($filters['minSecurityLevel'])) {
+        if (! empty($filters['minSecurityLevel'])) {
             $levels = ['basic', 'guarded', 'fenced', 'gated', 'cctv', 'secure'];
             $minIndex = array_search($filters['minSecurityLevel'], $levels, true);
             if ($minIndex !== false) {
@@ -31,7 +31,7 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
             }
         }
 
-        if (!empty($filters['latitude']) && !empty($filters['longitude']) && !empty($filters['radiusKm'])) {
+        if (! empty($filters['latitude']) && ! empty($filters['longitude']) && ! empty($filters['radiusKm'])) {
             $lat = (float) $filters['latitude'];
             $lng = (float) $filters['longitude'];
             $radius = (int) $filters['radiusKm'];
@@ -44,14 +44,14 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
                     sin(radians(?)) * sin(radians(latitude))
                 )
             ) AS distance', [$lat, $lng, $lat])
-            ->havingRaw('(
+                ->havingRaw('(
                 6371 * acos(
                     cos(radians(?)) * cos(radians(latitude)) *
                     cos(radians(longitude) - radians(?)) +
                     sin(radians(?)) * sin(radians(latitude))
                 )
             ) <= ?', [$lat, $lng, $lat, $radius])
-            ->orderBy('distance');
+                ->orderBy('distance');
         } else {
             $query->orderBy('name');
         }
@@ -73,7 +73,7 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
     {
         $lot = ParkingLot::find($id);
 
-        if (!$lot) {
+        if (! $lot) {
             return null;
         }
 
@@ -86,7 +86,7 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
     {
         $lot = ParkingLot::find($id);
 
-        if (!$lot) {
+        if (! $lot) {
             return false;
         }
 

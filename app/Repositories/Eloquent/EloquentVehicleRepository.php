@@ -17,8 +17,8 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('license_plate', 'ilike', "%{$search}%")
-                  ->orWhere('fleet_number', 'ilike', "%{$search}%")
-                  ->orWhere('trailer_plate', 'ilike', "%{$search}%");
+                    ->orWhere('fleet_number', 'ilike', "%{$search}%")
+                    ->orWhere('trailer_plate', 'ilike', "%{$search}%");
             });
         }
 
@@ -39,7 +39,7 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
     {
         $vehicle = Vehicle::find($id);
 
-        if (!$vehicle) {
+        if (! $vehicle) {
             return null;
         }
 
@@ -52,7 +52,7 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
     {
         $vehicle = Vehicle::find($id);
 
-        if (!$vehicle) {
+        if (! $vehicle) {
             return false;
         }
 

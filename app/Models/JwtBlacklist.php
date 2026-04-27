@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -11,9 +12,9 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property string $jti
- * @property \Carbon\Carbon $expires_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $expires_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class JwtBlacklist extends Model
 {
