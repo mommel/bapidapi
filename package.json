@@ -5,7 +5,8 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "lint": "docker compose exec app sh -c \"./vendor/bin/pint --test 2>&1 | tail -50\""
+        "lint": "docker compose exec app sh -c \"./vendor/bin/pint --test 2>&1 | tail -50\"",
+        "openapi": "docker compose exec app sh -c \"php artisan l5-swagger:generate\""
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
