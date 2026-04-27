@@ -31,7 +31,8 @@ Controller (thin) → Service (business logic) → Repository (DB queries) → M
 - No secrets in code
 - All validation via `FormRequest`
 - All output via `JsonResource`
-- OpenAPI annotation on every endpoint
+- **OpenAPI annotation on every controller action** — mandatory, CI `swagger.yml` will fail without it
+  - Read `.claude/rules/openapi.md` before creating or modifying any endpoint
 
 ## When Starting a Task
 
@@ -47,3 +48,4 @@ Controller (thin) → Service (business logic) → Repository (DB queries) → M
 - Architecture: `docs/architecture.md`
 - Guidelines: `docs/coding-guideline.md`
 - Setup: `docs/getting-started.md`
+- **OpenAPI annotation rules: `.claude/rules/openapi.md`** (mandatory reading before any endpoint work)

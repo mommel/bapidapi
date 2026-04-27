@@ -32,8 +32,15 @@ All responses serialized by `JsonResource` classes.
 2. `$fillable` required on all models — `$guarded = []` is forbidden
 3. No raw SQL with user input — Eloquent or parameterized queries only
 4. No secrets or credentials in source code files
-5. Every public API endpoint must have an OpenAPI annotation
-6. Every endpoint must have a Pest feature test
+5. **Every controller action MUST have a complete `@OA\` annotation block** — the CI `swagger.yml`
+   workflow runs `php artisan l5-swagger:generate` and will fail without it.
+   - Use `@OA\Get`, `@OA\Post`, `@OA\Put`, `@OA\Patch`, `@OA\Delete` directly on controller methods
+   - **Never** use `@OA\PathItem` as a wrapper on methods
+   - `operationId` must be globally unique — pattern: `{camelCaseResource}{Action}`
+   - `security={{"BearerAuth":{}}}` required on all `auth:api`-protected routes
+   - Verify with: `docker compose exec app php artisan l5-swagger:generate`
+   - Full annotation templates: `.agents/workflows/openapi-annotations.md`
+6. Every endpoint must have a Pest feature test covering 401, 422, and success cases
 
 ## Commands
 
