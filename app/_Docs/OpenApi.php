@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\docs;
+namespace App\Docs;
+use OpenApi\Attributes as OA;
 
 /**
  * @OA\Info(
@@ -156,4 +157,6 @@ namespace App\docs;
  *     @OA\Property(property="notes", type="string", nullable=true)
  * )
  */
-class OpenApi {}
+class OpenApi
+{
+}
