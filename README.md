@@ -1,5 +1,12 @@
 # bapidapi
 
+[![CodeQL Advanced](https://github.com/mommel/bapidapi/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/mommel/bapidapi/actions/workflows/codeql.yml)
+[![PHPMD](https://github.com/mommel/bapidapi/actions/workflows/phpmd.yml/badge.svg?branch=main)](https://github.com/mommel/bapidapi/actions/workflows/phpmd.yml)
+[![Security Audit](https://github.com/mommel/bapidapi/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/mommel/bapidapi/actions/workflows/security.yml)
+[![Tests](https://github.com/mommel/bapidapi/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/mommel/bapidapi/actions/workflows/tests.yml)
+[![Lint](https://github.com/mommel/bapidapi/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/mommel/bapidapi/actions/workflows/lint.yml)
+[![Swagger Auto-Regenerate](https://github.com/mommel/bapidapi/actions/workflows/swagger.yml/badge.svg?branch=main)](https://github.com/mommel/bapidapi/actions/workflows/swagger.yml)
+
 
 This is just a demoporject don't use it
 
