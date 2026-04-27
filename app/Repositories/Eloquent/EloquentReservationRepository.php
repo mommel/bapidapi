@@ -14,27 +14,27 @@ class EloquentReservationRepository implements ReservationRepositoryInterface
     {
         $query = Reservation::with(['parkingLot', 'driver', 'vehicle']);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['driverId'])) {
+        if (! empty($filters['driverId'])) {
             $query->where('driver_id', $filters['driverId']);
         }
 
-        if (!empty($filters['vehicleId'])) {
+        if (! empty($filters['vehicleId'])) {
             $query->where('vehicle_id', $filters['vehicleId']);
         }
 
-        if (!empty($filters['parkingLotId'])) {
+        if (! empty($filters['parkingLotId'])) {
             $query->where('parking_lot_id', $filters['parkingLotId']);
         }
 
-        if (!empty($filters['from'])) {
+        if (! empty($filters['from'])) {
             $query->where('check_in', '>=', $filters['from']);
         }
 
-        if (!empty($filters['to'])) {
+        if (! empty($filters['to'])) {
             $query->where('check_out', '<=', $filters['to']);
         }
 
@@ -57,7 +57,7 @@ class EloquentReservationRepository implements ReservationRepositoryInterface
     {
         $reservation = Reservation::find($id);
 
-        if (!$reservation) {
+        if (! $reservation) {
             return null;
         }
 
@@ -70,7 +70,7 @@ class EloquentReservationRepository implements ReservationRepositoryInterface
     {
         $reservation = Reservation::find($id);
 
-        if (!$reservation) {
+        if (! $reservation) {
             return false;
         }
 

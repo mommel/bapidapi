@@ -17,10 +17,10 @@ class EloquentDriverRepository implements DriverRepositoryInterface
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'ilike', "%{$search}%")
-                  ->orWhere('last_name', 'ilike', "%{$search}%")
-                  ->orWhere('email', 'ilike', "%{$search}%")
-                  ->orWhere('phone', 'ilike', "%{$search}%")
-                  ->orWhere('employee_number', 'ilike', "%{$search}%");
+                    ->orWhere('last_name', 'ilike', "%{$search}%")
+                    ->orWhere('email', 'ilike', "%{$search}%")
+                    ->orWhere('phone', 'ilike', "%{$search}%")
+                    ->orWhere('employee_number', 'ilike', "%{$search}%");
             });
         }
 
@@ -41,7 +41,7 @@ class EloquentDriverRepository implements DriverRepositoryInterface
     {
         $driver = Driver::find($id);
 
-        if (!$driver) {
+        if (! $driver) {
             return null;
         }
 
@@ -54,7 +54,7 @@ class EloquentDriverRepository implements DriverRepositoryInterface
     {
         $driver = Driver::find($id);
 
-        if (!$driver) {
+        if (! $driver) {
             return false;
         }
 

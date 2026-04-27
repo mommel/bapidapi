@@ -16,29 +16,29 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->string('name');
             $table->text('description')->nullable();
-            
+
             // Address details
             $table->string('address_street');
             $table->string('address_postal_code');
             $table->string('address_city');
             $table->string('address_state')->nullable();
             $table->string('address_country_code', 2);
-            
+
             // Coordinates
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            
+
             $table->string('security_level');
             $table->json('amenities')->nullable(); // Array of amenity codes
             $table->json('opening_hours')->nullable();
             $table->json('capacity')->nullable();
-            
+
             $table->string('operator_name')->nullable();
             $table->string('contact_phone')->nullable();
             $table->text('check_in_instructions')->nullable();
-            
+
             $table->json('pricing')->nullable();
-            
+
             $table->timestamps();
         });
     }

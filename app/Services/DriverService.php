@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Driver;
 use App\Repositories\DriverRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use App\Models\Driver;
 
 class DriverService
 {

@@ -1,6 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 /*
 |--------------------------------------------------------------------------
@@ -8,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 |--------------------------------------------------------------------------
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
@@ -23,8 +28,8 @@ pest()->extend(Tests\TestCase::class)
  */
 function authToken(): string
 {
-    $user = \App\Models\User::factory()->create([
-        'email' => 'testuser-' . \Illuminate\Support\Str::random(8) . '@example.com',
+    $user = User::factory()->create([
+        'email' => 'testuser-'.Str::random(8).'@example.com',
         'password' => bcrypt('password123'),
     ]);
 

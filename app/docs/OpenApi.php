@@ -9,6 +9,7 @@ namespace App\docs;
  *     title="bapidapi",
  *     version="1.0.0",
  *     description="RESTful parking-management API. All endpoints except auth/register, auth/login, auth/password/forgot, and auth/password/reset require a Bearer JWT token.",
+ *
  *     @OA\Contact(email="api@bapidapi.local")
  * )
  *
@@ -26,6 +27,7 @@ namespace App\docs;
  *
  * @OA\Schema(
  *     schema="ErrorResponse",
+ *
  *     @OA\Property(property="success", type="boolean", example=false),
  *     @OA\Property(
  *         property="error",
@@ -37,6 +39,7 @@ namespace App\docs;
  *
  * @OA\Schema(
  *     schema="ValidationErrorResponse",
+ *
  *     @OA\Property(property="message", type="string", example="The given data was invalid."),
  *     @OA\Property(
  *         property="errors",
@@ -50,6 +53,7 @@ namespace App\docs;
  *
  * @OA\Schema(
  *     schema="TokenResponse",
+ *
  *     @OA\Property(property="success", type="boolean", example=true),
  *     @OA\Property(property="message", type="string", example="OK"),
  *     @OA\Property(
@@ -70,6 +74,7 @@ namespace App\docs;
  *
  * @OA\Schema(
  *     schema="DriverResource",
+ *
  *     @OA\Property(property="id", type="string", format="uuid"),
  *     @OA\Property(property="employeeNumber", type="string", example="EMP-001"),
  *     @OA\Property(property="firstName", type="string", example="Jan"),
@@ -82,6 +87,7 @@ namespace App\docs;
  *
  * @OA\Schema(
  *     schema="VehicleResource",
+ *
  *     @OA\Property(property="id", type="string", format="uuid"),
  *     @OA\Property(property="fleetNumber", type="string", example="FL-042"),
  *     @OA\Property(property="type", type="string", example="truck"),
@@ -96,6 +102,7 @@ namespace App\docs;
  *
  * @OA\Schema(
  *     schema="ParkingLotResource",
+ *
  *     @OA\Property(property="id", type="string", format="uuid"),
  *     @OA\Property(property="code", type="string", example="PL-WAW-01"),
  *     @OA\Property(property="name", type="string", example="Warsaw North"),
@@ -127,6 +134,7 @@ namespace App\docs;
  *
  * @OA\Schema(
  *     schema="ReservationResource",
+ *
  *     @OA\Property(property="id", type="string", format="uuid"),
  *     @OA\Property(property="reservationNumber", type="string", example="RES-00001"),
  *     @OA\Property(property="parkingLotId", type="string", format="uuid"),
@@ -148,6 +156,4 @@ namespace App\docs;
  *     @OA\Property(property="notes", type="string", nullable=true)
  * )
  */
-class OpenApi
-{
-}
+class OpenApi {}

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Driver;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Driver>
+ * @extends Factory<Driver>
  */
 class DriverFactory extends Factory
 {
@@ -17,7 +18,7 @@ class DriverFactory extends Factory
     public function definition(): array
     {
         return [
-            'employee_number' => 'EMP-' . $this->faker->unique()->numerify('#####'),
+            'employee_number' => 'EMP-'.$this->faker->unique()->numerify('#####'),
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
             'phone' => $this->faker->phoneNumber(),

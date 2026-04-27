@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Reservation;
 use App\Repositories\ReservationRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use App\Models\Reservation;
 
 class ReservationService
 {
@@ -39,7 +39,7 @@ class ReservationService
             $data['check_out'],
         );
 
-        if (!$availability || !$availability['available']) {
+        if (! $availability || ! $availability['available']) {
             return [
                 'reservation' => null,
                 'error' => 'Requested slot is no longer available',
@@ -47,7 +47,7 @@ class ReservationService
         }
 
         // Generate reservation number and access code
-        $data['reservation_number'] = 'R-' . now()->format('Ymd') . '-' . str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
+        $data['reservation_number'] = 'R-'.now()->format('Ymd').'-'.str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
         $data['access_code'] = (string) random_int(100000, 999999);
         $data['status'] = 'confirmed';
 
@@ -68,7 +68,7 @@ class ReservationService
     {
         $reservation = $this->reservationRepository->findById($id);
 
-        if (!$reservation) {
+        if (! $reservation) {
             return ['success' => false, 'error' => 'Reservation not found'];
         }
 

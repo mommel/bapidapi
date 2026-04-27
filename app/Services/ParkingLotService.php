@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\ParkingLot;
 use App\Repositories\ParkingLotRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use App\Models\ParkingLot;
 
 class ParkingLotService
 {
@@ -48,7 +48,7 @@ class ParkingLotService
     {
         $lot = $this->parkingLotRepository->findById($parkingLotId);
 
-        if (!$lot) {
+        if (! $lot) {
             return null;
         }
 
