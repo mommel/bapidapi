@@ -165,4 +165,5 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'notes', type: 'string', nullable: true),
     ]
 )]
+/** @codeCoverageIgnore */
 class OpenApi {}
