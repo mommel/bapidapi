@@ -8,7 +8,7 @@
 [![Swagger Auto-Regenerate](https://github.com/mommel/bapidapi/actions/workflows/swagger.yml/badge.svg?branch=main)](https://github.com/mommel/bapidapi/actions/workflows/swagger.yml)
 
 
-This is just a demoporject don't use it
+This is just a demoproject don't use it
 
 
 
