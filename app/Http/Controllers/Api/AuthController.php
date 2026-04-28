@@ -140,7 +140,7 @@ class AuthController extends Controller
                     properties: [
                         new OA\Property(property: 'success', type: 'boolean', example: true),
                         new OA\Property(property: 'message', type: 'string', example: 'Successfully logged out'),
-                        new OA\Property(property: 'data', type: 'array', items: new OA\Items()),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items),
                     ]
                 )
             ),
@@ -271,7 +271,7 @@ class AuthController extends Controller
                     properties: [
                         new OA\Property(property: 'success', type: 'boolean', example: true),
                         new OA\Property(property: 'message', type: 'string', example: 'If an account with that email exists, a reset link has been sent.'),
-                        new OA\Property(property: 'data', type: 'array', items: new OA\Items()),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items),
                     ]
                 )
             ),
@@ -329,7 +329,7 @@ class AuthController extends Controller
                     properties: [
                         new OA\Property(property: 'success', type: 'boolean', example: true),
                         new OA\Property(property: 'message', type: 'string', example: 'Password has been reset successfully.'),
-                        new OA\Property(property: 'data', type: 'array', items: new OA\Items()),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items),
                     ]
                 )
             ),
