@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use OpenApi\Attributes as OA;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
@@ -24,45 +25,37 @@ use PHPOpenSourceSaver\JWTAuth\JWTGuard;
  */
 class AuthController extends Controller
 {
-    /**
-     * @OA\Post(
-     *     path="/auth/register",
-     *     operationId="authRegister",
-     *     tags={"Auth"},
-     *     summary="Register a new user",
-     *     description="Creates a new user account and returns a JWT access token.",
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *
-     *         @OA\JsonContent(
-     *             required={"name","email","password","password_confirmation"},
-     *
-     *             @OA\Property(property="name", type="string", example="Jan Kowalski"),
-     *             @OA\Property(property="email", type="string", format="email", example="jan@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="secret123"),
-     *             @OA\Property(property="password_confirmation", type="string", format="password", example="secret123")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Registered successfully",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/TokenResponse")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
-     *     )
-     * )
-     *
-     * @param  RegisterRequest  $request  Validated registration data
-     * @return JsonResponse 200 with access token, or 422 on validation failure
-     */
+    #[OA\Post(
+        path: '/auth/register',
+        operationId: 'authRegister',
+        summary: 'Register a new user',
+        description: 'Creates a new user account and returns a JWT access token.',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'email', 'password', 'password_confirmation'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'Jan Kowalski'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'jan@example.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'secret123'),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'secret123'),
+                ]
+            )
+        ),
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Registered successfully',
+                content: new OA\JsonContent(ref: '#/components/schemas/TokenResponse')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationErrorResponse')
+            ),
+        ]
+    )]
     public function register(RegisterRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -78,50 +71,40 @@ class AuthController extends Controller
         return $this->tokenResponse($token);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/auth/login",
-     *     operationId="authLogin",
-     *     tags={"Auth"},
-     *     summary="Log in and obtain a JWT",
-     *     description="Authenticates the user and returns an access token.",
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *
-     *         @OA\JsonContent(
-     *             required={"email","password"},
-     *
-     *             @OA\Property(property="email", type="string", format="email", example="jan@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="secret123")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Authenticated successfully",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/TokenResponse")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=401,
-     *         description="Invalid credentials",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
-     *     )
-     * )
-     *
-     * @param  LoginRequest  $request  Validated login credentials
-     * @return JsonResponse 200 with access token, or 401 on invalid credentials
-     */
+    #[OA\Post(
+        path: '/auth/login',
+        operationId: 'authLogin',
+        summary: 'Log in and obtain a JWT',
+        description: 'Authenticates the user and returns an access token.',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'jan@example.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'secret123'),
+                ]
+            )
+        ),
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authenticated successfully',
+                content: new OA\JsonContent(ref: '#/components/schemas/TokenResponse')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Invalid credentials',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationErrorResponse')
+            ),
+        ]
+    )]
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->validated();
@@ -142,37 +125,32 @@ class AuthController extends Controller
         return $this->tokenResponse($token);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/auth/logout",
-     *     operationId="authLogout",
-     *     tags={"Auth"},
-     *     summary="Log out the authenticated user",
-     *     description="Blacklists the current JWT and invalidates the session.",
-     *     security={{"BearerAuth":{}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Logged out successfully",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Successfully logged out"),
-     *             @OA\Property(property="data", type="array", @OA\Items())
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
-     *     )
-     * )
-     *
-     * @return JsonResponse 200 on success, 401 if not authenticated
-     */
+    #[OA\Post(
+        path: '/auth/logout',
+        operationId: 'authLogout',
+        summary: 'Log out the authenticated user',
+        description: 'Blacklists the current JWT and invalidates the session.',
+        security: [['BearerAuth' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Logged out successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Successfully logged out'),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items()),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+        ]
+    )]
     public function logout(): JsonResponse
     {
         // Blacklist the current token
@@ -191,32 +169,26 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/auth/refresh",
-     *     operationId="authRefresh",
-     *     tags={"Auth"},
-     *     summary="Refresh the JWT access token",
-     *     description="Issues a new access token using the current valid token.",
-     *     security={{"BearerAuth":{}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Token refreshed successfully",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/TokenResponse")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated or token expired",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
-     *     )
-     * )
-     *
-     * @return JsonResponse 200 with new access token
-     */
+    #[OA\Post(
+        path: '/auth/refresh',
+        operationId: 'authRefresh',
+        summary: 'Refresh the JWT access token',
+        description: 'Issues a new access token using the current valid token.',
+        security: [['BearerAuth' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Token refreshed successfully',
+                content: new OA\JsonContent(ref: '#/components/schemas/TokenResponse')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated or token expired',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+        ]
+    )]
     public function refresh(): JsonResponse
     {
         $token = $this->jwtGuard()->refresh();
@@ -224,44 +196,41 @@ class AuthController extends Controller
         return $this->tokenResponse($token);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/auth/me",
-     *     operationId="authMe",
-     *     tags={"Auth"},
-     *     summary="Get the authenticated user's profile",
-     *     security={{"BearerAuth":{}}},
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="User profile",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="OK"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(property="id", type="string", format="uuid"),
-     *                 @OA\Property(property="name", type="string", example="Jan Kowalski"),
-     *                 @OA\Property(property="email", type="string", format="email"),
-     *                 @OA\Property(property="created_at", type="string", format="date-time"),
-     *                 @OA\Property(property="updated_at", type="string", format="date-time")
-     *             )
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
-     *     )
-     * )
-     *
-     * @return JsonResponse 200 with user data, 401 if not authenticated
-     */
+    #[OA\Get(
+        path: '/auth/me',
+        operationId: 'authMe',
+        summary: "Get the authenticated user's profile",
+        security: [['BearerAuth' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'User profile',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'OK'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'string', format: 'uuid'),
+                                new OA\Property(property: 'name', type: 'string', example: 'Jan Kowalski'),
+                                new OA\Property(property: 'email', type: 'string', format: 'email'),
+                                new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+                                new OA\Property(property: 'updated_at', type: 'string', format: 'date-time'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+        ]
+    )]
     public function me(): JsonResponse
     {
         $user = auth('api')->user();
@@ -279,47 +248,40 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/auth/password/forgot",
-     *     operationId="authForgotPassword",
-     *     tags={"Auth"},
-     *     summary="Request a password reset link",
-     *     description="Sends a reset link to the provided email. Always returns 200 to prevent user enumeration.",
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *
-     *         @OA\JsonContent(
-     *             required={"email"},
-     *
-     *             @OA\Property(property="email", type="string", format="email", example="jan@example.com")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Reset link sent (or silently ignored if email not found)",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="If an account with that email exists, a reset link has been sent."),
-     *             @OA\Property(property="data", type="array", @OA\Items())
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
-     *     )
-     * )
-     *
-     * @param  ForgotPasswordRequest  $request  Validated email
-     * @return JsonResponse 200 always (to avoid user enumeration)
-     */
+    #[OA\Post(
+        path: '/auth/password/forgot',
+        operationId: 'authForgotPassword',
+        summary: 'Request a password reset link',
+        description: 'Sends a reset link to the provided email. Always returns 200 to prevent user enumeration.',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'jan@example.com'),
+                ]
+            )
+        ),
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Reset link sent (or silently ignored if email not found)',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'If an account with that email exists, a reset link has been sent.'),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items()),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationErrorResponse')
+            ),
+        ]
+    )]
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         try {
@@ -341,57 +303,48 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/auth/password/reset",
-     *     operationId="authResetPassword",
-     *     tags={"Auth"},
-     *     summary="Reset the user's password",
-     *     description="Resets the password using the token received by email.",
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *
-     *         @OA\JsonContent(
-     *             required={"email","password","password_confirmation","token"},
-     *
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="password", type="string", format="password"),
-     *             @OA\Property(property="password_confirmation", type="string", format="password"),
-     *             @OA\Property(property="token", type="string")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Password reset successfully",
-     *
-     *         @OA\JsonContent(
-     *
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Password has been reset successfully."),
-     *             @OA\Property(property="data", type="array", @OA\Items())
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid or expired token",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
-     *     )
-     * )
-     *
-     * @param  ResetPasswordRequest  $request  Validated reset data (token, email, password)
-     * @return JsonResponse 200 on success, 400 on invalid/expired token
-     */
+    #[OA\Post(
+        path: '/auth/password/reset',
+        operationId: 'authResetPassword',
+        summary: "Reset the user's password",
+        description: 'Resets the password using the token received by email.',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password', 'password_confirmation', 'token'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password'),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password'),
+                    new OA\Property(property: 'token', type: 'string'),
+                ]
+            )
+        ),
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Password reset successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Password has been reset successfully.'),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items()),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Invalid or expired token',
+                content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationErrorResponse')
+            ),
+        ]
+    )]
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
         $status = Password::reset(

@@ -509,26 +509,31 @@ fi
 
 ## 10. OpenAPI Annotation Standard
 
-Every controller action MUST have complete OpenAPI annotations:
+> **This project uses swagger-php v4 PHP Attributes (OpenAPI 3.x).**
+> Do **NOT** use the old `/** @OA\... */` docblock syntax. All annotations MUST use `#[OA\...]` PHP 8 Attributes.
+
+Every controller action MUST have complete OpenAPI annotations. Add `use OpenApi\Attributes as OA;` to every controller:
 
 ```php
-/**
- * @OA\Post(
- *     path="/api/v1/auth/login",
- *     operationId="authLogin",
- *     tags={"Authentication"},
- *     summary="Authenticate user and issue JWT tokens",
- *     description="Validates credentials and returns a short-lived access token and a long-lived refresh token.",
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(ref="#/components/schemas/LoginRequest")
- *     ),
- *     @OA\Response(response=200, description="Login successful", @OA\JsonContent(ref="#/components/schemas/AuthTokenResponse")),
- *     @OA\Response(response=401, description="Invalid credentials"),
- *     @OA\Response(response=422, description="Validation error"),
- *     @OA\Response(response=429, description="Too many requests")
- * )
- */
+use OpenApi\Attributes as OA;
+
+#[OA\Post(
+    path: '/api/v1/auth/login',
+    operationId: 'authLogin',
+    summary: 'Authenticate user and issue JWT tokens',
+    description: 'Validates credentials and returns a short-lived access token.',
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(ref: '#/components/schemas/LoginRequest')
+    ),
+    tags: ['Authentication'],
+    responses: [
+        new OA\Response(response: 200, description: 'Login successful', content: new OA\JsonContent(ref: '#/components/schemas/AuthTokenResponse')),
+        new OA\Response(response: 401, description: 'Invalid credentials'),
+        new OA\Response(response: 422, description: 'Validation error'),
+        new OA\Response(response: 429, description: 'Too many requests'),
+    ]
+)]
 public function login(LoginRequest $request): JsonResponse
 ```
 
@@ -537,4 +542,6 @@ public function login(LoginRequest $request): JsonResponse
 - `tags` groups related endpoints (match controller name without "Controller").
 - Document ALL possible HTTP response codes (200, 201, 400, 401, 403, 404, 422, 429, 500).
 - All request bodies and responses must reference `$ref` schemas, not inline definitions.
-- Schemas defined in `app/docs/ApiSchemas.php` or distributed near the models they describe.
+- Global schemas defined in `app/Docs/OpenApi.php` using `#[OA\Schema(...)]` attributes on the class.
+- Full templates and rules: `.agents/workflows/openapi-annotations.md`
+
